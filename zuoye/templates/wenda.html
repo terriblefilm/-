@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>智能问答</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .chat-container {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .chat-box {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 4px;
+      background-color: #f0f0f0;
+    }
+
+    .user-message {
+      margin-right: 10px;
+      float: right;
+      background-color: #e1e1ff;
+    }
+
+    .ai-message {
+      margin-right: 10px;
+      float: left;
+      background-color: #7e7e7e7e;
+      text-align: left;
+    }
+
+    .input-group {
+      margin-top: 10px;
+    }
+
+    .input-field {
+      width: calc(100% - 100px);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .submit-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 90px;
+      margin-left: 5px;
+    }
+
+    /* 清除浮动 */
+    .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  </style>
+</head>
+<body>
+{% csrf_token %}
+<form action="/chat/" method="post" class="smart-green">
+  <div class="chat-container">
+    <div class="chat-box">
+        <div class="chat-history" data-chat-history="{{ chat_history|safe }}"></div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" class="input-field" name="input"  placeholder="输入消息...">
+      <button type="submit" class="submit-button">发送</button>
+    </div>
+  </div>
+  </form>
+
+
+
+  <script>
+    function submitMessage() {
+  var inputField = document.getElementById('input-field');
+  var message = inputField.value;
+  var chatHistory = document.getElementById('chat-history');
+
+  // 检查输入是否为空
+  if (message.trim() === '') {
+    alert('请输入消息内容！');
+    return;
+  }
+
+  // 发送 AJAX 请求
+  fetch('/chat/', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': '{{ csrf_token }}'
+  },
+  body: JSON.stringify({
+    input: message,
+    chat_history: chatHistory.textContent // 假设你有一个变量保存了聊天历史
+  })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+      // 将用户消息添加到聊天历史
+      var userMessage = document.createElement('div');
+      userMessage.className = 'message user-message';
+      userMessage.textContent = message;
+
+      // 将 AI 助手的消息添加到聊天历史
+      var aiMessage = document.createElement('div');
+      aiMessage.className = 'message ai-message';
+      aiMessage.innerHTML = data.ai_response;
+
+      // 将消息添加到聊天历史中
+      chatHistory.appendChild(userMessage);
+      chatHistory.appendChild(aiMessage);
+
+      // 清空输入框
+      inputField.value = '';
+      // 滚动到聊天记录底部
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    } else {
+      alert('消息发送失败，请重试！');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+  </script>
+</body>
+</html>

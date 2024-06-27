@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册新账户</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .register-container { max-width: 300px; margin: 50px auto; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .form-group button { background-color: #5cb85c; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
+        .form-group button:hover { background-color: #4cae4c; }
+        .error { color: red; margin-bottom: 10px; }
+        .terms { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>注册新账户</h2>
+        {% if form.errors %}
+            <div class="error">请填写所有必填字段。</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">用户名:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+<!--            <div class="form-group">-->
+<!--                <label for="password2">确认密码:</label>-->
+<!--                <input type="password" id="password2" name="password2" required>-->
+<!--            </div>-->
+            <div class="form-group">
+                <label for="email">电子邮件:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="terms">
+                <label>
+                    <input type="checkbox" id="terms" name="terms" required>
+                    我已阅读并同意<a href="{% url 'terms' %}" target="_blank">用户协议</a>
+                </label>
+            </div>
+            <div class="form-group">
+                <button type="submit">注册</button>
+                <a href="{% url 'login' %}">已有账户？登录</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>菜谱展示</title>
+    <style>
+    body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+        }
+        .login-btn {
+            background: none;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .login-btn:hover {
+            background-color: #ddd;
+            color: #333;
+        }
+        .carousel {
+            width: 100%;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .carousel-item {
+            flex: 0 0 100%;
+            max-width: 100%;
+            height: 300px; /* Adjust height as needed */
+            background-size: cover;
+            background-position: center;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .recipe {
+            background-color: white;
+            margin-bottom: 20px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .recipe-title {
+            font-size: 20px;
+            color: #333;
+        }
+        .recipe-description {
+            font-size: 16px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">菜谱</div>
+        <a href="wenda/" class="login-btn">问答机器人</a>
+        <a href="login/" class="login-btn">登录</a>
+    </div>
+
+    <div class="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item" style="background-image: url('../static/img1.png');"></div>
+            <div class="carousel-item" style="background-image: url('../static/img2.png');"></div>
+            <div class="carousel-item" style="background-image: url('../static/img3.png');"></div>
+        </div>
+    </div>
+
+
+
+    <div class="recipes" >
+       <form id="searchForm">
+        <input type="text" id="searchQuery" name="search_query" placeholder="Search recipes...">
+        <button type="submit">Search</button>
+       </form>
+
+        <div id="recipesContainer">
+        <!-- 搜索结果将显示在这里 -->
+        </div>
+         {% if recipe_list %}
+            <ul>
+                {% for recipe in recipe_list %}
+                    <li>
+                        <h2>{{ recipe.name }}</h2> <!-- 显示菜谱名称 -->
+                        <p>{{ recipe.content }}</p> <!-- 显示菜谱内容 -->
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>没有找到菜谱数据。</p>
+        {% endif %}
+    </div>
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentIndex = 0;
+        const items = document.querySelectorAll('.carousel-item');
+        const totalItems = items.length;
+
+        function showSlide(index) {
+            // 移除所有幻灯片的 active 类
+            items.forEach(item => item.classList.remove('active'));
+            // 为当前幻灯片添加 active 类
+            items[index].classList.add('active');
+        }
+
+        // 初始显示第一张幻灯片
+        showSlide(currentIndex);
+
+        // 自动播放轮播图
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % totalItems;
+            console.log(currentIndex)
+            showSlide(currentIndex);
+        }, 3000); // 3秒切换一次
+        // 确保轮播图在窗口大小变化时也能正确显示
+        window.addEventListener('resize', () => {
+            items[index].style.height = window.innerHeight + 'px';
+        });
+
+
+    $(document).ready(function() {
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+        var searchQuery = $('#searchQuery').val();
+
+        $.ajax({
+            url: '/home_view/', // 后端视图 URL
+            type: 'GET',
+            data: {search_query: searchQuery},
+            dataType: 'json',
+            success: function(data) {
+                displayRecipes(data.recipe_list);
+            },
+            error: function(error) {
+                console.error('Error fetching recipes:', error);
+            }
+        });
+    });
+});
+
+function displayRecipes(recipes) {
+    var container = document.getElementById('recipesContainer');
+    container.innerHTML = ''; // 清空现有内容
+    if (recipes.length > 0) {
+        var recipesHtml = recipes.map(function(recipe) {
+            return '<div><h3>' + recipe.name + '</h3><p>' + recipe.content + '</p></div>';
+        }).join('');
+        container.innerHTML = recipesHtml;
+    } else {
+        container.innerHTML = 'No recipes found.';
+    }
+}
+</script>
+</body>
+</html>
